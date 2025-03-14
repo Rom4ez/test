@@ -3,250 +3,447 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Современная Онлайн-Доска</title>
+    <title>Музыкальный плеер</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
         }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            background: #f0f2f5;
-            overflow: hidden;
-        }
-        .container {
-            display: flex;
-            height: 100vh;
-        }
-        .toolbar {
-            width: 80px;
-            background: #2c3e50;
-            padding: 20px 10px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #fff;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            justify-content: center;
             align-items: center;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-x: hidden;
         }
-        .toolbar button {
-            width: 50px;
-            height: 50px;
-            background: #34495e;
-            border: none;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 20px;
-            cursor: pointer;
-            transition: background 0.3s;
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 30px;
         }
-        .toolbar button:hover {
-            background: #1abc9c;
+        
+        .player-title {
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 32px;
+            color: #e94560;
+            text-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
         }
-        .canvas-container {
-            flex: 1;
+        
+        .carousel-container {
             position: relative;
-            background: #fff;
-            border-left: 1px solid #ddd;
+            width: 100%;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 40px;
         }
-        #board {
+        
+        .carousel-item {
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.5s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .carousel-item img {
             width: 100%;
             height: 100%;
-            cursor: crosshair;
+            object-fit: cover;
         }
-        .element {
-            position: absolute;
-            user-select: none;
-            resize: both;
-            overflow: auto;
-            border: 1px dashed #3498db;
+        
+        .carousel-item-left {
+            transform: translateX(-250px) scale(0.8);
+            filter: brightness(0.6);
+            z-index: 1;
         }
-        .sticker {
-            width: 150px;
-            height: 150px;
-            background: #f1c40f;
+        
+        .carousel-item-center {
+            transform: scale(1.2);
+            z-index: 3;
+            box-shadow: 0 10px 40px rgba(233, 69, 96, 0.6);
+        }
+        
+        .carousel-item-right {
+            transform: translateX(250px) scale(0.8);
+            filter: brightness(0.6);
+            z-index: 1;
+        }
+        
+        .song-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .song-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 90%;
+            margin: 0 auto 10px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+        
+        .control-btn {
+            background: #e94560;
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.3);
+        }
+        
+        .control-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.6);
+        }
+        
+        .control-btn.play-pause {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .control-btn i {
+            font-size: 20px;
+        }
+        
+        .control-btn.play-pause i {
+            font-size: 24px;
+        }
+        
+        .progress-container {
+            width: 80%;
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .progress {
+            height: 100%;
+            background: #e94560;
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        
+        .time-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .volume-container {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
-            color: #2c3e50;
-        }
-        .text-box {
-            width: 200px;
-            height: 100px;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 10px;
-            font-size: 16px;
-        }
-        .shape {
-            background: rgba(52, 152, 219, 0.5);
-        }
-        .controls {
-            position: fixed;
-            bottom: 20px;
-            left: 100px;
-            display: flex;
+            margin-top: 20px;
             gap: 10px;
-            background: #ecf0f1;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        .controls input[type="color"] {
-            width: 40px;
-            height: 40px;
+        
+        .volume-icon {
+            color: #e94560;
+            font-size: 20px;
+        }
+        
+        .volume-slider {
+            width: 100px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .volume-progress {
+            height: 100%;
+            background: #e94560;
+            border-radius: 2px;
+            width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            .carousel-item {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .carousel-item-left {
+                transform: translateX(-180px) scale(0.8);
+            }
+            
+            .carousel-item-right {
+                transform: translateX(180px) scale(0.8);
+            }
+            
+            .controls {
+                gap: 10px;
+            }
+            
+            .control-btn {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .control-btn.play-pause {
+                width: 50px;
+                height: 50px;
+            }
+        }
+        
+        .playlist-btn {
+            background: transparent;
+            color: #e94560;
+            border: 2px solid #e94560;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 30px;
+            transition: all 0.3s;
+        }
+        
+        .playlist-btn:hover {
+            background: rgba(233, 69, 96, 0.1);
+            transform: scale(1.05);
+        }
+        
+        .playlist-container {
+            position: fixed;
+            bottom: -70vh;
+            left: 0;
+            width: 100%;
+            height: 70vh;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            transition: all 0.5s ease;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            overflow-y: auto;
+        }
+        
+        .playlist-container.active {
+            bottom: 0;
+        }
+        
+        .playlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .playlist-title {
+            font-size: 24px;
+            color: #e94560;
+        }
+        
+        .close-playlist {
+            background: transparent;
             border: none;
+            color: #fff;
+            font-size: 24px;
             cursor: pointer;
         }
+        
+        .playlist {
+            list-style: none;
+        }
+        
+        .playlist-item {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .playlist-item:hover {
+            background: rgba(233, 69, 96, 0.1);
+        }
+        
+        .playlist-item.active {
+            background: rgba(233, 69, 96, 0.2);
+            border-left: 4px solid #e94560;
+        }
+        
+        .playlist-item-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 80%;
+        }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <div class="toolbar">
-            <button title="Карандаш" onclick="setTool('pencil')">✏️</button>
-            <button title="Кисть" onclick="setTool('brush')">🖌️</button>
-            <button title="Текст" onclick="addText()">📝</button>
-            <button title="Стикер" onclick="addSticker()">📌</button>
-            <button title="Прямоугольник" onclick="addShape('rectangle')">⬜</button>
-            <button title="Круг" onclick="addShape('circle')">⭕</button>
-            <button title="Очистить" onclick="clearBoard()">🗑️</button>
-        </div>
-        <div class="canvas-container">
-            <canvas id="board"></canvas>
-            <div class="controls">
-                <input type="color" id="colorPicker" value="#000000" onchange="setColor(this.value)">
-                <button onclick="bringToFront()">⬆️</button>
-                <button onclick="sendToBack()">⬇️</button>
+        <h1 class="player-title">Музыкальный плеер</h1>
+        
+        <div class="carousel-container">
+            <div class="carousel-item carousel-item-left">
+                <img src="/api/placeholder/400/400" alt="Previous Song" id="prev-cover">
+            </div>
+            <div class="carousel-item carousel-item-center">
+                <img src="/api/placeholder/400/400" alt="Current Song" id="current-cover">
+            </div>
+            <div class="carousel-item carousel-item-right">
+                <img src="/api/placeholder/400/400" alt="Next Song" id="next-cover">
             </div>
         </div>
+        
+        <div class="song-info">
+            <h2 class="song-title" id="song-title">Загрузка...</h2>
+        </div>
+        
+        <div class="controls">
+            <button class="control-btn" id="prev-btn">
+                <i class="fas fa-step-backward"></i>
+            </button>
+            <button class="control-btn play-pause" id="play-btn">
+                <i class="fas fa-play"></i>
+            </button>
+            <button class="control-btn" id="next-btn">
+                <i class="fas fa-step-forward"></i>
+            </button>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+            <div class="time-container">
+                <span id="current-time">0:00</span>
+                <span id="total-time">0:00</span>
+            </div>
+        </div>
+        
+        <div class="volume-container">
+            <i class="fas fa-volume-up volume-icon"></i>
+            <div class="volume-slider" id="volume-slider">
+                <div class="volume-progress" id="volume-progress"></div>
+            </div>
+        </div>
+        
+        <button class="playlist-btn" id="playlist-btn">
+            Список песен
+        </button>
     </div>
-
+    
+    <div class="playlist-container" id="playlist-container">
+        <div class="playlist-header">
+            <h2 class="playlist-title">Плейлист</h2>
+            <button class="close-playlist" id="close-playlist">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="playlist" id="playlist"></ul>
+    </div>
+    
+    <audio id="audio"></audio>
+    
     <script>
-        const canvas = document.getElementById('board');
-        const ctx = canvas.getContext('2d');
-        let currentTool = 'pencil';
-        let isDrawing = false;
-        let selectedElement = null;
+        // Список всех песен
+        const songs = [
+            "СМН х Рома Желудь — Люби меня (gay remix)",
+            "GAY REMIX — Cocytление будто чемпион",
+            "lilodor — безумно можно быть в сперме (gay remix)",
+            "Lida — Анапа (gay remix)",
+            "NERROWEYED — Сперма (MAYOT - Chef) [GAY REMIX]",
+            "SIR_GAY_Studio — Фетишист (gay-remix)",
+            "SODA LUV — ЯЛРС (GAY REMIX)",
+            "Toxiš — Huitz (Gay Remix)",
+            "Toxiš — I got u gay (remix)",
+            "VERSACE — На большом воздушном шаре (gay remix)",
+            "VERSACE ft NERROWEYED — Зеркало в конче (gay remix)",
+            "Егор Крид — Гучи (gay remix)",
+            "Изнур — Бошки Дымятся (GAY REMIX)",
+            "Стас Костюшкин — Женщина, я не танцую [GAY REMIX]",
+            "DronXD — Ху_к (ДЫМОК GAY REMIX)",
+            "Я НА ЧЛЕНЕ (Я В МОМЕНТЕ) ft. ДЖАРАХОВ & MARKUL (GAY REMIX)",
+            "Quest Pistols — Ты так красива (GAY REMIX)"
+        ];
 
-        // Адаптация размера canvas
-        canvas.width = window.innerWidth - 80;
-        canvas.height = window.innerHeight;
+        // DOM Elements
+        const audio = document.getElementById('audio');
+        const playBtn = document.getElementById('play-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const songTitle = document.getElementById('song-title');
+        const progressBar = document.getElementById('progress-bar');
+        const progress = document.getElementById('progress');
+        const currentTimeEl = document.getElementById('current-time');
+        const totalTimeEl = document.getElementById('total-time');
+        const prevCover = document.getElementById('prev-cover');
+        const currentCover = document.getElementById('current-cover');
+        const nextCover = document.getElementById('next-cover');
+        const playlistBtn = document.getElementById('playlist-btn');
+        const playlistContainer = document.getElementById('playlist-container');
+        const closePlaylist = document.getElementById('close-playlist');
+        const playlist = document.getElementById('playlist');
+        const volumeSlider = document.getElementById('volume-slider');
+        const volumeProgress = document.getElementById('volume-progress');
 
-        // Установка инструмента
-        function setTool(tool) {
-            currentTool = tool;
-            ctx.lineWidth = tool === 'brush' ? 10 : 2;
-            ctx.lineCap = 'round';
+        let currentSongIndex = 0;
+        let isPlaying = false;
+
+        // Initialize
+        function init() {
+            loadSong(currentSongIndex);
+            renderPlaylist();
+            updateCarousel();
         }
 
-        // Установка цвета
-        function setColor(color) {
-            ctx.strokeStyle = color;
-            if (selectedElement) {
-                selectedElement.style.backgroundColor = color;
-            }
+        // Load song
+        function loadSong(index) {
+            songTitle.textContent = songs[index];
+            audio.src = `mp3/${songs[index]}.mp3`;
+            document.title = `Плейлис | ${songs[index]}`;
+            updateCarousel();
         }
 
-        // Рисование
-        canvas.addEventListener('mousedown', (e) => {
-            if (currentTool === 'pencil' || currentTool === 'brush') {
-                isDrawing = true;
-                ctx.beginPath();
-                ctx.moveTo(e.clientX - 80, e.clientY);
-            }
-        });
-
-        canvas.addEventListener('mousemove', (e) => {
-            if (isDrawing) {
-                ctx.lineTo(e.clientX - 80, e.clientY);
-                ctx.stroke();
-            }
-        });
-
-        canvas.addEventListener('mouseup', () => {
-            isDrawing = false;
-            ctx.closePath();
-        });
-
-        // Добавление текста
-        function addText() {
-            const textBox = document.createElement('div');
-            textBox.className = 'element text-box';
-            textBox.contentEditable = true;
-            textBox.innerText = 'Введите текст';
-            textBox.style.left = '100px';
-            textBox.style.top = '100px';
-            makeDraggable(textBox);
-            document.querySelector('.canvas-container').appendChild(textBox);
-        }
-
-        // Добавление стикера
-        function addSticker() {
-            const sticker = document.createElement('div');
-            sticker.className = 'element sticker';
-            sticker.innerText = 'Стикер';
-            sticker.style.left = '150px';
-            sticker.style.top = '150px';
-            makeDraggable(sticker);
-            document.querySelector('.canvas-container').appendChild(sticker);
-        }
-
-        // Добавление формы
-        function addShape(type) {
-            const shape = document.createElement('div');
-            shape.className = 'element shape';
-            shape.style.width = '100px';
-            shape.style.height = type === 'circle' ? '100px' : '50px';
-            shape.style.borderRadius = type === 'circle' ? '50%' : '0';
-            shape.style.left = '200px';
-            shape.style.top = '200px';
-            makeDraggable(shape);
-            document.querySelector('.canvas-container').appendChild(shape);
-        }
-
-        // Перетаскивание элементов
-        function makeDraggable(element) {
-            let posX = 0, posY = 0, startX, startY;
-            element.addEventListener('mousedown', (e) => {
-                selectedElement = element;
-                startX = e.clientX - posX;
-                startY = e.clientY - posY;
-                document.addEventListener('mousemove', drag);
-                document.addEventListener('mouseup', stopDrag);
-            });
-
-            function drag(e) {
-                posX = e.clientX - startX;
-                posY = e.clientY - startY;
-                element.style.left = posX + 'px';
-                element.style.top = posY + 'px';
-            }
-
-            function stopDrag() {
-                document.removeEventListener('mousemove', drag);
-                document.removeEventListener('mouseup', stopDrag);
-            }
-        }
-
-        // Передний/задний план
-        function bringToFront() {
-            if (selectedElement) {
-                selectedElement.style.zIndex = 1000;
-            }
-        }
-
-        function sendToBack() {
-            if (selectedElement) {
-                selectedElement.style.zIndex = 0;
-            }
-        }
-
-        // Очистка доски
-        function clearBoard() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            document.querySelectorAll('.element').forEach(el => el.remove());
-            selectedElement = null;
-        }
-    </script>
-</body>
-</html>
+        // Generate cover image
