@@ -1,1 +1,252 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Современная Онлайн-Доска</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #f0f2f5;
+            overflow: hidden;
+        }
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        .toolbar {
+            width: 80px;
+            background: #2c3e50;
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .toolbar button {
+            width: 50px;
+            height: 50px;
+            background: #34495e;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .toolbar button:hover {
+            background: #1abc9c;
+        }
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background: #fff;
+            border-left: 1px solid #ddd;
+        }
+        #board {
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+        .element {
+            position: absolute;
+            user-select: none;
+            resize: both;
+            overflow: auto;
+            border: 1px dashed #3498db;
+        }
+        .sticker {
+            width: 150px;
+            height: 150px;
+            background: #f1c40f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+        .text-box {
+            width: 200px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            font-size: 16px;
+        }
+        .shape {
+            background: rgba(52, 152, 219, 0.5);
+        }
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 100px;
+            display: flex;
+            gap: 10px;
+            background: #ecf0f1;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .controls input[type="color"] {
+            width: 40px;
+            height: 40px;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="toolbar">
+            <button title="Карандаш" onclick="setTool('pencil')">✏️</button>
+            <button title="Кисть" onclick="setTool('brush')">🖌️</button>
+            <button title="Текст" onclick="addText()">📝</button>
+            <button title="Стикер" onclick="addSticker()">📌</button>
+            <button title="Прямоугольник" onclick="addShape('rectangle')">⬜</button>
+            <button title="Круг" onclick="addShape('circle')">⭕</button>
+            <button title="Очистить" onclick="clearBoard()">🗑️</button>
+        </div>
+        <div class="canvas-container">
+            <canvas id="board"></canvas>
+            <div class="controls">
+                <input type="color" id="colorPicker" value="#000000" onchange="setColor(this.value)">
+                <button onclick="bringToFront()">⬆️</button>
+                <button onclick="sendToBack()">⬇️</button>
+            </div>
+        </div>
+    </div>
 
+    <script>
+        const canvas = document.getElementById('board');
+        const ctx = canvas.getContext('2d');
+        let currentTool = 'pencil';
+        let isDrawing = false;
+        let selectedElement = null;
+
+        // Адаптация размера canvas
+        canvas.width = window.innerWidth - 80;
+        canvas.height = window.innerHeight;
+
+        // Установка инструмента
+        function setTool(tool) {
+            currentTool = tool;
+            ctx.lineWidth = tool === 'brush' ? 10 : 2;
+            ctx.lineCap = 'round';
+        }
+
+        // Установка цвета
+        function setColor(color) {
+            ctx.strokeStyle = color;
+            if (selectedElement) {
+                selectedElement.style.backgroundColor = color;
+            }
+        }
+
+        // Рисование
+        canvas.addEventListener('mousedown', (e) => {
+            if (currentTool === 'pencil' || currentTool === 'brush') {
+                isDrawing = true;
+                ctx.beginPath();
+                ctx.moveTo(e.clientX - 80, e.clientY);
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDrawing) {
+                ctx.lineTo(e.clientX - 80, e.clientY);
+                ctx.stroke();
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isDrawing = false;
+            ctx.closePath();
+        });
+
+        // Добавление текста
+        function addText() {
+            const textBox = document.createElement('div');
+            textBox.className = 'element text-box';
+            textBox.contentEditable = true;
+            textBox.innerText = 'Введите текст';
+            textBox.style.left = '100px';
+            textBox.style.top = '100px';
+            makeDraggable(textBox);
+            document.querySelector('.canvas-container').appendChild(textBox);
+        }
+
+        // Добавление стикера
+        function addSticker() {
+            const sticker = document.createElement('div');
+            sticker.className = 'element sticker';
+            sticker.innerText = 'Стикер';
+            sticker.style.left = '150px';
+            sticker.style.top = '150px';
+            makeDraggable(sticker);
+            document.querySelector('.canvas-container').appendChild(sticker);
+        }
+
+        // Добавление формы
+        function addShape(type) {
+            const shape = document.createElement('div');
+            shape.className = 'element shape';
+            shape.style.width = '100px';
+            shape.style.height = type === 'circle' ? '100px' : '50px';
+            shape.style.borderRadius = type === 'circle' ? '50%' : '0';
+            shape.style.left = '200px';
+            shape.style.top = '200px';
+            makeDraggable(shape);
+            document.querySelector('.canvas-container').appendChild(shape);
+        }
+
+        // Перетаскивание элементов
+        function makeDraggable(element) {
+            let posX = 0, posY = 0, startX, startY;
+            element.addEventListener('mousedown', (e) => {
+                selectedElement = element;
+                startX = e.clientX - posX;
+                startY = e.clientY - posY;
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', stopDrag);
+            });
+
+            function drag(e) {
+                posX = e.clientX - startX;
+                posY = e.clientY - startY;
+                element.style.left = posX + 'px';
+                element.style.top = posY + 'px';
+            }
+
+            function stopDrag() {
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('mouseup', stopDrag);
+            }
+        }
+
+        // Передний/задний план
+        function bringToFront() {
+            if (selectedElement) {
+                selectedElement.style.zIndex = 1000;
+            }
+        }
+
+        function sendToBack() {
+            if (selectedElement) {
+                selectedElement.style.zIndex = 0;
+            }
+        }
+
+        // Очистка доски
+        function clearBoard() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            document.querySelectorAll('.element').forEach(el => el.remove());
+            selectedElement = null;
+        }
+    </script>
+</body>
+</html>
