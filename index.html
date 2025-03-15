@@ -5,64 +5,300 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Музыкальный плеер</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            background: #181818;
-            color: white;
-            text-align: center;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
         }
-        .player {
-            width: 300px;
-            margin: 50px auto;
-            background: #282828;
-            padding: 20px;
-            border-radius: 10px;
-        }
-        .cover {
+        
+        .container {
             width: 100%;
-            height: 200px;
-            background: gray;
-            margin-bottom: 10px;
+            max-width: 1200px;
+            padding: 30px;
         }
+        
+        .player-title {
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 32px;
+            color: #e94560;
+            text-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
+        }
+        
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+        
+        .carousel-item {
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.5s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .carousel-item-left {
+            transform: translateX(-250px) scale(0.8);
+            filter: brightness(0.6);
+            z-index: 1;
+        }
+        
+        .carousel-item-center {
+            transform: scale(1.2);
+            z-index: 3;
+            box-shadow: 0 10px 40px rgba(233, 69, 96, 0.6);
+        }
+        
+        .carousel-item-right {
+            transform: translateX(250px) scale(0.8);
+            filter: brightness(0.6);
+            z-index: 1;
+        }
+        
+        .song-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .song-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 90%;
+            margin: 0 auto 10px;
+        }
+        
         .controls {
             display: flex;
-            justify-content: space-around;
-            margin-top: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
         }
-        button {
-            background: #ff5722;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
+        
+        .control-btn {
+            background: #e94560;
             color: white;
-            border-radius: 5px;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.3);
+        }
+        
+        .control-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.6);
+        }
+        
+        .control-btn.play-pause {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .control-btn i {
+            font-size: 20px;
+        }
+        
+        .control-btn.play-pause i {
+            font-size: 24px;
+        }
+        
+        .progress-container {
+            width: 80%;
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .progress {
+            height: 100%;
+            background: #e94560;
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        
+        .time-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .volume-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        
+        .volume-icon {
+            color: #e94560;
+            font-size: 20px;
+        }
+        
+        .volume-slider {
+            width: 100px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .volume-progress {
+            height: 100%;
+            background: #e94560;
+            border-radius: 2px;
+            width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            .carousel-item {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .carousel-item-left {
+                transform: translateX(-180px) scale(0.8);
+            }
+            
+            .carousel-item-right {
+                transform: translateX(180px) scale(0.8);
+            }
+            
+            .controls {
+                gap: 10px;
+            }
+            
+            .control-btn {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .control-btn.play-pause {
+                width: 50px;
+                height: 50px;
+            }
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 </head>
 <body>
-
-    <div class="player">
-        <div class="cover" id="cover">🎵</div>
-        <audio id="audio" controls></audio>
-        <div class="controls">
-            <button id="prev">⏮️</button>
-            <button id="play">▶️</button>
-            <button id="next">⏭️</button>
+    <div class="container">
+        <h1 class="player-title">Музыкальный плеер</h1>
+        
+        <div class="carousel-container">
+            <div class="carousel-item carousel-item-left">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Flag_of_Transnistria_%28Russian_tricolour%29.svg/1600px-Flag_of_Transnistria_%28Russian_tricolour%29.svg.png" alt="Previous Song" id="prev-cover">
+            </div>
+            <div class="carousel-item carousel-item-center">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Flag_of_Transnistria_%28Russian_tricolour%29.svg/1600px-Flag_of_Transnistria_%28Russian_tricolour%29.svg.png" alt="Current Song" id="current-cover">
+            </div>
+            <div class="carousel-item carousel-item-right">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Flag_of_Transnistria_%28Russian_tricolour%29.svg/1600px-Flag_of_Transnistria_%28Russian_tricolour%29.svg.png" alt="Next Song" id="next-cover">
+            </div>
         </div>
-        <div id="track-name">Загрузка...</div>
+        
+        <div class="song-info">
+            <h2 class="song-title" id="song-title">Загрузка...</h2>
+        </div>
+        
+        <div class="controls">
+            <button class="control-btn" id="prev-btn">
+                <i class="fas fa-step-backward"></i>
+            </button>
+            <button class="control-btn play-pause" id="play-btn">
+                <i class="fas fa-play"></i>
+            </button>
+            <button class="control-btn" id="next-btn">
+                <i class="fas fa-step-forward"></i>
+            </button>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+            <div class="time-container">
+                <span id="current-time">0:00</span>
+                <span id="total-time">0:00</span>
+            </div>
+        </div>
+        
+        <div class="volume-container">
+            <i class="fas fa-volume-up volume-icon"></i>
+            <div class="volume-slider" id="volume-slider">
+                <div class="volume-progress" id="volume-progress"></div>
+            </div>
+        </div>
     </div>
-
+    
+    <audio id="audio"></audio>
+    
     <script>
         let tracks = [];
         let currentTrack = 0;
-        let audio = document.getElementById("audio");
-        let playButton = document.getElementById("play");
+        const audio = document.getElementById("audio");
+        const playButton = document.getElementById("play-btn");
+        const progressBar = document.getElementById("progress-bar");
+        const progress = document.getElementById("progress");
+        const currentTimeEl = document.getElementById("current-time");
+        const totalTimeEl = document.getElementById("total-time");
+        const volumeSlider = document.getElementById("volume-slider");
+        const volumeProgress = document.getElementById("volume-progress");
 
         async function loadPlaylist() {
             try {
                 let response = await fetch("https://papass.ru/mp3/playlist.php");
                 let files = await response.json();
                 tracks = files.map(file => `https://papass.ru/mp3/${file}`);
+                updateCarousel();
                 playTrack(0);
             } catch (error) {
                 console.error("Ошибка загрузки плейлиста:", error);
@@ -72,34 +308,89 @@
         function playTrack(index) {
             currentTrack = index;
             audio.src = tracks[currentTrack];
-            document.getElementById("track-name").textContent = tracks[currentTrack].split("/").pop();
+            document.getElementById("song-title").textContent = tracks[currentTrack].split("/").pop();
             audio.play();
+            playButton.querySelector("i").className = "fas fa-pause";
+            updateCarousel();
         }
 
-        document.getElementById("prev").addEventListener("click", () => {
-            if (currentTrack > 0) playTrack(currentTrack - 1);
+        function updateCarousel() {
+            const coverUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Flag_of_Transnistria_%28Russian_tricolour%29.svg/1600px-Flag_of_Transnistria_%28Russian_tricolour%29.svg.png";
+            document.getElementById("prev-cover").src = coverUrl;
+            document.getElementById("current-cover").src = coverUrl;
+            document.getElementById("next-cover").src = coverUrl;
+        }
+
+        document.getElementById("prev-btn").addEventListener("click", () => {
+            if (currentTrack > 0) {
+                playTrack(currentTrack - 1);
+            } else {
+                playTrack(tracks.length - 1);
+            }
         });
 
-        document.getElementById("next").addEventListener("click", () => {
-            if (currentTrack < tracks.length - 1) playTrack(currentTrack + 1);
+        document.getElementById("next-btn").addEventListener("click", () => {
+            if (currentTrack < tracks.length - 1) {
+                playTrack(currentTrack + 1);
+            } else {
+                playTrack(0);
+            }
         });
 
         playButton.addEventListener("click", () => {
             if (audio.paused) {
                 audio.play();
-                playButton.textContent = "⏸️";
+                playButton.querySelector("i").className = "fas fa-pause";
             } else {
                 audio.pause();
-                playButton.textContent = "▶️";
+                playButton.querySelector("i").className = "fas fa-play";
             }
         });
 
         audio.addEventListener("ended", () => {
-            if (currentTrack < tracks.length - 1) playTrack(currentTrack + 1);
+            if (currentTrack < tracks.length - 1) {
+                playTrack(currentTrack + 1);
+            } else {
+                playTrack(0);
+            }
         });
+
+        audio.addEventListener("timeupdate", () => {
+            const currentTime = audio.currentTime;
+            const duration = audio.duration;
+            const progressPercent = (currentTime / duration) * 100;
+            progress.style.width = `${progressPercent}%`;
+
+            const currentMinutes = Math.floor(currentTime / 60);
+            const currentSeconds = Math.floor(currentTime % 60);
+            const totalMinutes = Math.floor(duration / 60);
+            const totalSeconds = Math.floor(duration % 60);
+
+            currentTimeEl.textContent = `${currentMinutes}:${currentSeconds < 10 ? "0" + currentSeconds : currentSeconds}`;
+            totalTimeEl.textContent = `${totalMinutes}:${totalSeconds < 10 ? "0" + totalSeconds : totalSeconds}`;
+        });
+
+        progressBar.addEventListener("click", (e) => {
+            const width = progressBar.clientWidth;
+            const clickX = e.offsetX;
+            const duration = audio.duration;
+            audio.currentTime = (clickX / width) * duration;
+        });
+
+        // Регулировка громкости
+        volumeSlider.addEventListener("click", (e) => {
+            const width = volumeSlider.clientWidth;
+            const clickX = e.offsetX;
+            const volume = clickX / width;
+            audio.volume = volume;
+            volumeProgress.style.width = `${volume * 100}%`;
+        });
+
+        // Установка начальной громкости
+        audio.volume = 1;
+        volumeProgress.style.width = "100%";
 
         loadPlaylist();
     </script>
-
 </body>
 </html>
