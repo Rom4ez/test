@@ -5,441 +5,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Музыкальный плеер</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-        }
-        
         body {
-            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            overflow-x: hidden;
-        }
-        
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            padding: 30px;
-        }
-        
-        .player-title {
+            font-family: Arial, sans-serif;
+            background: #181818;
+            color: white;
             text-align: center;
-            margin-bottom: 50px;
-            font-size: 32px;
-            color: #e94560;
-            text-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
         }
-        
-        .carousel-container {
-            position: relative;
-            width: 100%;
-            height: 300px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 40px;
-        }
-        
-        .carousel-item {
-            position: absolute;
-            width: 220px;
-            height: 220px;
+        .player {
+            width: 300px;
+            margin: 50px auto;
+            background: #282828;
+            padding: 20px;
             border-radius: 10px;
-            overflow: hidden;
-            transition: all 0.5s ease;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
-        
-        .carousel-item img {
+        .cover {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .carousel-item-left {
-            transform: translateX(-250px) scale(0.8);
-            filter: brightness(0.6);
-            z-index: 1;
-        }
-        
-        .carousel-item-center {
-            transform: scale(1.2);
-            z-index: 3;
-            box-shadow: 0 10px 40px rgba(233, 69, 96, 0.6);
-        }
-        
-        .carousel-item-right {
-            transform: translateX(250px) scale(0.8);
-            filter: brightness(0.6);
-            z-index: 1;
-        }
-        
-        .song-info {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .song-title {
-            font-size: 24px;
+            height: 200px;
+            background: gray;
             margin-bottom: 10px;
-            color: #fff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 90%;
-            margin: 0 auto 10px;
         }
-        
         .controls {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-            gap: 15px;
-        }
-        
-        .control-btn {
-            background: #e94560;
-            color: white;
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.3);
-        }
-        
-        .control-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.6);
-        }
-        
-        .control-btn.play-pause {
-            width: 60px;
-            height: 60px;
-        }
-        
-        .control-btn i {
-            font-size: 20px;
-        }
-        
-        .control-btn.play-pause i {
-            font-size: 24px;
-        }
-        
-        .progress-container {
-            width: 80%;
-            max-width: 500px;
-            margin: 0 auto;
-            position: relative;
-        }
-        
-        .progress-bar {
-            height: 6px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-            cursor: pointer;
-            position: relative;
-        }
-        
-        .progress {
-            height: 100%;
-            background: #e94560;
-            border-radius: 3px;
-            width: 0%;
-            transition: width 0.1s linear;
-        }
-        
-        .time-container {
-            display: flex;
-            justify-content: space-between;
+            justify-content: space-around;
             margin-top: 10px;
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.8);
         }
-        
-        .volume-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 20px;
-            gap: 10px;
-        }
-        
-        .volume-icon {
-            color: #e94560;
-            font-size: 20px;
-        }
-        
-        .volume-slider {
-            width: 100px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 2px;
-            cursor: pointer;
-            position: relative;
-        }
-        
-        .volume-progress {
-            height: 100%;
-            background: #e94560;
-            border-radius: 2px;
-            width: 100%;
-        }
-        
-        @media (max-width: 768px) {
-            .carousel-item {
-                width: 180px;
-                height: 180px;
-            }
-            
-            .carousel-item-left {
-                transform: translateX(-180px) scale(0.8);
-            }
-            
-            .carousel-item-right {
-                transform: translateX(180px) scale(0.8);
-            }
-            
-            .controls {
-                gap: 10px;
-            }
-            
-            .control-btn {
-                width: 40px;
-                height: 40px;
-            }
-            
-            .control-btn.play-pause {
-                width: 50px;
-                height: 50px;
-            }
-        }
-        
-        .playlist-btn {
-            background: transparent;
-            color: #e94560;
-            border: 2px solid #e94560;
-            padding: 10px 20px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 30px;
-            transition: all 0.3s;
-        }
-        
-        .playlist-btn:hover {
-            background: rgba(233, 69, 96, 0.1);
-            transform: scale(1.05);
-        }
-        
-        .playlist-container {
-            position: fixed;
-            bottom: -70vh;
-            left: 0;
-            width: 100%;
-            height: 70vh;
-            background: rgba(26, 26, 46, 0.95);
-            backdrop-filter: blur(10px);
-            transition: all 0.5s ease;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.3);
-            z-index: 10;
-            overflow-y: auto;
-        }
-        
-        .playlist-container.active {
-            bottom: 0;
-        }
-        
-        .playlist-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .playlist-title {
-            font-size: 24px;
-            color: #e94560;
-        }
-        
-        .close-playlist {
-            background: transparent;
+        button {
+            background: #ff5722;
             border: none;
-            color: #fff;
-            font-size: 24px;
+            padding: 10px;
             cursor: pointer;
-        }
-        
-        .playlist {
-            list-style: none;
-        }
-        
-        .playlist-item {
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .playlist-item:hover {
-            background: rgba(233, 69, 96, 0.1);
-        }
-        
-        .playlist-item.active {
-            background: rgba(233, 69, 96, 0.2);
-            border-left: 4px solid #e94560;
-        }
-        
-        .playlist-item-title {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 80%;
+            color: white;
+            border-radius: 5px;
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <h1 class="player-title">Музыкальный плеер</h1>
-        
-        <div class="carousel-container">
-            <div class="carousel-item carousel-item-left">
-                <img src="/api/placeholder/400/400" alt="Previous Song" id="prev-cover">
-            </div>
-            <div class="carousel-item carousel-item-center">
-                <img src="/api/placeholder/400/400" alt="Current Song" id="current-cover">
-            </div>
-            <div class="carousel-item carousel-item-right">
-                <img src="/api/placeholder/400/400" alt="Next Song" id="next-cover">
-            </div>
-        </div>
-        
-        <div class="song-info">
-            <h2 class="song-title" id="song-title">Загрузка...</h2>
-        </div>
-        
+
+    <div class="player">
+        <div class="cover" id="cover">🎵</div>
+        <audio id="audio" controls></audio>
         <div class="controls">
-            <button class="control-btn" id="prev-btn">
-                <i class="fas fa-step-backward"></i>
-            </button>
-            <button class="control-btn play-pause" id="play-btn">
-                <i class="fas fa-play"></i>
-            </button>
-            <button class="control-btn" id="next-btn">
-                <i class="fas fa-step-forward"></i>
-            </button>
+            <button id="prev">⏮️</button>
+            <button id="play">▶️</button>
+            <button id="next">⏭️</button>
         </div>
-        
-        <div class="progress-container">
-            <div class="progress-bar" id="progress-bar">
-                <div class="progress" id="progress"></div>
-            </div>
-            <div class="time-container">
-                <span id="current-time">0:00</span>
-                <span id="total-time">0:00</span>
-            </div>
-        </div>
-        
-        <div class="volume-container">
-            <i class="fas fa-volume-up volume-icon"></i>
-            <div class="volume-slider" id="volume-slider">
-                <div class="volume-progress" id="volume-progress"></div>
-            </div>
-        </div>
-        
-        <button class="playlist-btn" id="playlist-btn">
-            Список песен
-        </button>
+        <div id="track-name">Загрузка...</div>
     </div>
-    
-    <div class="playlist-container" id="playlist-container">
-        <div class="playlist-header">
-            <h2 class="playlist-title">Плейлист</h2>
-            <button class="close-playlist" id="close-playlist">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <ul class="playlist" id="playlist"></ul>
-    </div>
-    
-    <audio id="audio"></audio>
-    
+
     <script>
-        // Список песен
-        const songs = [
-            {
-                title: "СМН х Рома Желудь — Люби меня (gay remix)",
-                url: "mp3/СМН х Рома Желудь — Люби меня (gay remix).mp3"
-            },
-            {
-                title: "GAY REMIX — Cocytление будто чемпион",
-                url: "mp3/GAY REMIX — Cocytление будто чемпион.mp3"
-            },
-            {
-                title: "lilodor — безумно можно быть в сперме (gay remix)",
-                url: "mp3/lilodor — безумно можно быть в сперме (gay remix).mp3"
-            },
-            {
-                title: "Lida — Анапа (gay remix)",
-                url: "mp3/Lida — Анапа (gay remix).mp3"
-            },
-            {
-                title: "NERROWEYED — Сперма (MAYOT - Chef) [GAY REMIX]",
-                url: "mp3/NERROWEYED — Сперма (MAYOT - Chef) [GAY REMIX].mp3"
-            },
-            {
-                title: "SIR_GAY_Studio — Фетишист (gay-remix)",
-                url: "mp3/SIR_GAY_Studio — Фетишист (gay-remix).mp3"
-            },
-            {
-                title: "SODA LUV — ЯЛРС (GAY REMIX)",
-                url: "mp3/SODA LUV — ЯЛРС (GAY REMIX).mp3"
-            },
-            {
-                title: "Toxiš — Huitz (Gay Remix)",
-                url: "mp3/Toxiš — Huitz (Gay Remix).mp3"
-            },
-            {
-                title: "Toxiš — I got u gay (remix)",
-                url: "mp3/Toxiš — I got u gay (remix).mp3"
-            },
-            {
-                title: "VERSACE — На большом воздушном шаре (gay remix)",
-                url: "mp3/VERSACE — На большом воздушном шаре (gay remix).mp3"
-            },
-            {
-                title: "VERSACE ft NERROWEYED — Зеркало в конче (gay remix)",
-                url: "mp3/VERSACE ft NERROWEYED — Зеркало в конче (gay remix).mp3"
-            },
-            {
-                title: "Егор Крид — Гучи (gay remix)",
-                url: "mp3/Егор Крид — Гучи (gay remix).mp3"
-            },
-            {
-                title: "Изнур — Бошки Дымятся (GAY REMIX)",
-                url: "mp3/Изнур — Бошки Дымятся (GAY REMIX).mp3"
-            },
-            {
-                title: "Стас Костюшкин — Женщина, я не танцую [GAY REMIX]",
+        let tracks = [];
+        let currentTrack = 0;
+        let audio = document.getElementById("audio");
+        let playButton = document.getElementById("play");
+
+        async function loadPlaylist() {
+            try {
+                let response = await fetch("https://papass.ru/mp3/playlist.php");
+                let files = await response.json();
+                tracks = files.map(file => `https://papass.ru/mp3/${file}`);
+                playTrack(0);
+            } catch (error) {
+                console.error("Ошибка загрузки плейлиста:", error);
+            }
+        }
+
+        function playTrack(index) {
+            currentTrack = index;
+            audio.src = tracks[currentTrack];
+            document.getElementById("track-name").textContent = tracks[currentTrack].split("/").pop();
+            audio.play();
+        }
+
+        document.getElementById("prev").addEventListener("click", () => {
+            if (currentTrack > 0) playTrack(currentTrack - 1);
+        });
+
+        document.getElementById("next").addEventListener("click", () => {
+            if (currentTrack < tracks.length - 1) playTrack(currentTrack + 1);
+        });
+
+        playButton.addEventListener("click", () => {
+            if (audio.paused) {
+                audio.play();
+                playButton.textContent = "⏸️";
+            } else {
+                audio.pause();
+                playButton.textContent = "▶️";
+            }
+        });
+
+        audio.addEventListener("ended", () => {
+            if (currentTrack < tracks.length - 1) playTrack(currentTrack + 1);
+        });
+
+        loadPlaylist();
+    </script>
+
+</body>
+</html>
