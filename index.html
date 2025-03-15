@@ -441,7 +441,7 @@
         // Load song
         function loadSong(index) {
             songTitle.textContent = songs[index];
-            audio.src = `mp3/${songs[index]}.mp3`;
+            audio.src = `${songs[index]}.mp3`;
             document.title = `Плейлис | ${songs[index]}`;
             updateCarousel();
         }
